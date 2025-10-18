@@ -26,6 +26,26 @@ This pipeline applies logarithmic thinning to GWAS p-values, starting from BGeni
 		 ```
 	 - Output will appear in the `divide_and_conquer` sub-directory. Rename the output file for uniqueness if needed.
 
+## C++ Accelerated Tools
+
+For larger workloads you can use the C++ implementations that mirror the Python pipeline:
+
+- Build the executables once:
+  ```bash
+  make -C cpp
+  ```
+- Run the sorter (chunk rows defaults to 1,000,000):
+  ```bash
+  cpp/build/logsort --input path/to/bgenie_output.txt --output final_sorted_data.csv --threshold 0 --chunk-rows 2000000
+  ```
+  Temporary chunk files are written next to the output unless `--tmpdir` is provided.
+- Apply thinning on the sorted CSV:
+  ```bash
+  cpp/build/logthin --input final_sorted_data.csv --output thinned_final_sorted_data.csv --factor 1.0003
+  ```
+
+The C++ sorter also emits a binary stream (`final_sorted_data.bin`) that contains the sorted records in the order written to the CSV for downstream tooling.
+
 ## Final Output
 
 The final output is a CSV file (e.g., `thinned_python_final_sorted_data.csv`) containing the thinned, sorted p-values. This file is suitable for downstream analysis and visualization (e.g., Manhattan plots).
